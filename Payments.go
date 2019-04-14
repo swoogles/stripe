@@ -5,6 +5,9 @@ import (
 	"github.com/stripe/stripe-go"
 	"github.com/stripe/stripe-go/charge"
 	"github.com/stripe/stripe-go/product"
+	"github.com/stripe/stripe-go/plan"
+	"github.com/stripe/stripe-go/customer"
+	"github.com/stripe/stripe-go/sub"
 	"os"
 )
 
@@ -34,8 +37,72 @@ func CreateProduct(testKey string) {
 		Type: stripe.String(string(stripe.ProductTypeService)),
 	}
 	prod, _ := product.New(params)
+	//prod.ID
+
 	fmt.Println("New Product Response")
 	fmt.Println(prod)
+}
+
+func CreatePlan(testKey string) func(string) string {
+	return func(productId) {
+		productId := "prod_Et1gMmK1DWlq3S"
+
+		params := &stripe.PlanParams{
+			ProductID: stripe.String(productId),
+			Nickname:  stripe.String("Gym Membership USD"),
+			Interval:  stripe.String(string(stripe.PlanIntervalMonth)),
+			Currency:  stripe.String("usd"),
+			Amount:    stripe.Int64(10000),
+		}
+		p, err := plan.New(params)
+		fmt.Println("New Plan:")
+		fmt.Println(p)
+		return p.ID
+	}
+}
+
+func createCustomer(testKey string) string {
+	stripe.Key = os.Getenv(testKey)
+
+	params := &stripe.CustomerParams{
+		Email: stripe.String("jenny.rosen@example.com"),
+	}
+	params.SetSource("src_18eYalAHEMiOZZp1l9ZTjSU0")
+	cus, _ := customer.New(params)
+	fmt.Println("New Customer: ")
+	fmt.Println(cus)
+	return cus.ID
+}
+
+func createSubscription(testkey string) func(string, string) string {
+	return func(planId, customerId) {
+
+		items := []*stripe.SubscriptionItemsParams{
+			{
+				Plan: stripe.String(planId),
+			},
+		}
+		params := &stripe.SubscriptionParams{
+			Customer: stripe.String(customerId),
+			Items:    items,
+		}
+		newSubscription, _ := sub.New(params)
+		fmt.Println("New Subscription: ")
+		fmt.Println(newSubscription)
+		return newSubscription.ID
+	}
+}
+
+func CreateTestSubscription(planId string, customerId string) string {
+	return createSubscription("TEST_STRIPE_SECRET_KEY")(planId, customerId)
+}
+
+func CreateTestCustomer() string {
+	return createCustomer("TEST_STRIPE_SECRET_KEY")
+}
+
+func CreateTestPlan() func(string) string {
+	return CreatePlan("TEST_STRIPE_SECRET_KEY")
 }
 
 func CreateTestProduct() {
