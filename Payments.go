@@ -64,7 +64,7 @@ func createCustomer(testKey string) string {
 	params := &stripe.CustomerParams{
 		Email: stripe.String("jenny.rosen@example.com"),
 	}
-	params.SetSource("src_18eYalAHEMiOZZp1l9ZTjSU0")
+	//params.SetSource("src_18eYalAHEMiOZZp1l9ZTjSU0")
 	cus, _ := customer.New(params)
 	fmt.Println("New Customer: ")
 	fmt.Println(cus)
