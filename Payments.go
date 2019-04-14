@@ -43,21 +43,20 @@ func CreateProduct(testKey string) {
 	fmt.Println(prod)
 }
 
-func createPlan(testKey string) func(string) string {
-	return func(productId string) string {
-		params := &stripe.PlanParams{
-			ProductID: stripe.String(productId),
-			Nickname:  stripe.String("Gym Membership USD"),
-			Interval:  stripe.String(string(stripe.PlanIntervalMonth)),
-			Currency:  stripe.String("usd"),
-			Amount:    stripe.Int64(10000),
-		}
-		p, err := plan.New(params)
-		fmt.Println("New Plan:")
-		fmt.Println(p)
-		fmt.Println("New Plan error:" + err.Error())
-		return p.ID
+func createPlan(key string, productId) string {
+	stripe.Key = os.Getenv(key)
+	params := &stripe.PlanParams{
+		ProductID: stripe.String(productId),
+		Nickname:  stripe.String("Gym Membership USD"),
+		Interval:  stripe.String(string(stripe.PlanIntervalMonth)),
+		Currency:  stripe.String("usd"),
+		Amount:    stripe.Int64(10000),
 	}
+	p, err := plan.New(params)
+	fmt.Println("New Plan:")
+	fmt.Println(p)
+	fmt.Println("New Plan error:" + err.Error())
+	return p.ID
 }
 
 func createCustomer(testKey string) string {
@@ -101,8 +100,8 @@ func CreateTestCustomer() string {
 	return createCustomer("TEST_STRIPE_SECRET_KEY")
 }
 
-func CreateTestPlan() func(string) string {
-	return createPlan("TEST_STRIPE_SECRET_KEY")
+func CreateTestPlan(productId string) string {
+	return createPlan("TEST_STRIPE_SECRET_KEY", productId)
 }
 
 func CreateTestProduct() {
