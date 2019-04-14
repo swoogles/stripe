@@ -44,9 +44,7 @@ func CreateProduct(testKey string) {
 }
 
 func CreatePlan(testKey string) func(string) string {
-	return func(productId) {
-		productId := "prod_Et1gMmK1DWlq3S"
-
+	return func(productId string) string {
 		params := &stripe.PlanParams{
 			ProductID: stripe.String(productId),
 			Nickname:  stripe.String("Gym Membership USD"),
@@ -57,6 +55,7 @@ func CreatePlan(testKey string) func(string) string {
 		p, err := plan.New(params)
 		fmt.Println("New Plan:")
 		fmt.Println(p)
+		fmt.Println("New Plan error:" + err.Error())
 		return p.ID
 	}
 }
@@ -75,7 +74,7 @@ func createCustomer(testKey string) string {
 }
 
 func createSubscription(testkey string) func(string, string) string {
-	return func(planId, customerId) {
+	return func(planId string, customerId string) string {
 
 		items := []*stripe.SubscriptionItemsParams{
 			{
