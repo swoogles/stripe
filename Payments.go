@@ -8,6 +8,7 @@ import (
 	"github.com/stripe/stripe-go/plan"
 	"github.com/stripe/stripe-go/customer"
 	"github.com/stripe/stripe-go/sub"
+	//"github.com/stripe/stripe-go/source"
 	"os"
 )
 
@@ -58,13 +59,18 @@ func createPlan(key string, productId string) string {
 	return p.ID
 }
 
-func createCustomer(testKey string) string {
-	stripe.Key = os.Getenv(testKey)
+//func createSource(testKey string) string {
+//	&stripe.SourceParams{}
+//	source.New()
+//}
+
+func createCustomer(key string, sourceToken string) string {
+	stripe.Key = os.Getenv(key)
 
 	params := &stripe.CustomerParams{
 		Email: stripe.String("jenny.rosen@example.com"),
 	}
-	//params.SetSource("src_18eYalAHEMiOZZp1l9ZTjSU0")
+	params.SetSource(sourceToken)
 	cus, _ := customer.New(params)
 	fmt.Println("New Customer: ")
 	fmt.Println(cus)
@@ -95,8 +101,8 @@ func CreateTestSubscription(planId string, customerId string) string {
 	return createSubscriptionFor(planId, customerId)
 }
 
-func CreateTestCustomer() string {
-	return createCustomer("TEST_STRIPE_SECRET_KEY")
+func CreateTestCustomer(sourceToken string) string {
+	return createCustomer("TEST_STRIPE_SECRET_KEY", sourceToken)
 }
 
 func CreateTestPlan(productId string) string {
