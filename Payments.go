@@ -52,7 +52,7 @@ func createPlan(key string, productId string) string {
 		Currency:  stripe.String("usd"),
 		Amount:    stripe.Int64(10000),
 	}
-	p, err := plan.New(params)
+	p, _ := plan.New(params)
 	fmt.Println("New Plan:")
 	fmt.Println(p)
 	fmt.Println("New Plan error:" + err.Error())
