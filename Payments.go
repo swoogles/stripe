@@ -55,7 +55,6 @@ func createPlan(key string, productId string) string {
 	p, _ := plan.New(params)
 	fmt.Println("New Plan:")
 	fmt.Println(p)
-	fmt.Println("New Plan error:" + err.Error())
 	return p.ID
 }
 
