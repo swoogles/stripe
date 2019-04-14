@@ -43,7 +43,7 @@ func CreateProduct(testKey string) {
 	fmt.Println(prod)
 }
 
-func CreatePlan(testKey string) func(string) string {
+func createPlan(testKey string) func(string) string {
 	return func(productId string) string {
 		params := &stripe.PlanParams{
 			ProductID: stripe.String(productId),
@@ -93,7 +93,8 @@ func createSubscription(testkey string) func(string, string) string {
 }
 
 func CreateTestSubscription(planId string, customerId string) string {
-	return createSubscription("TEST_STRIPE_SECRET_KEY")(planId, customerId)
+	createSubscriptionFor := createSubscription("TEST_STRIPE_SECRET_KEY")
+	return createSubscriptionFor(planId, customerId)
 }
 
 func CreateTestCustomer() string {
@@ -101,7 +102,7 @@ func CreateTestCustomer() string {
 }
 
 func CreateTestPlan() func(string) string {
-	return CreatePlan("TEST_STRIPE_SECRET_KEY")
+	return createPlan("TEST_STRIPE_SECRET_KEY")
 }
 
 func CreateTestProduct() {
