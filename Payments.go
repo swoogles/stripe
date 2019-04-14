@@ -43,7 +43,7 @@ func CreateProduct(testKey string) {
 	fmt.Println(prod)
 }
 
-func createPlan(key string, productId) string {
+func createPlan(key string, productId string) string {
 	stripe.Key = os.Getenv(key)
 	params := &stripe.PlanParams{
 		ProductID: stripe.String(productId),
