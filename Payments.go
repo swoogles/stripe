@@ -5,6 +5,7 @@ import (
 	"github.com/stripe/stripe-go"
 	"github.com/stripe/stripe-go/charge"
 	"github.com/stripe/stripe-go/product"
+	"github.com/stripe/stripe-go/sku"
 	"github.com/stripe/stripe-go/plan"
 	"github.com/stripe/stripe-go/customer"
 	"github.com/stripe/stripe-go/sub"
@@ -126,8 +127,12 @@ func GetAllTestProducts() []Product {
 	return getAllProducts("TEST_STRIPE_SECRET_KEY")
 }
 
+type Sku struct {
+	Price int64
+}
 type Product struct {
 	Name string
+	Skus []Sku
 }
 
 func getAllProducts(stripePaymentToken string) []Product {
@@ -144,7 +149,15 @@ func getAllProducts(stripePaymentToken string) []Product {
 
 	for i.Next() {
 		p := i.Product()
+		skuParams := &stripe.SKUListParams{}
+		skuParams.Filters.AddFilter("limit", "", "3")
+		skuResponse := sku.List(skuParams)
+
 		curProduct := Product{Name: p.Name}
+		for skuResponse.Next() {
+			curSku := skuResponse.SKU()
+			curProduct.Skus = append(curProduct.Skus, Sku{Price: curSku.Price})
+		}
 		productList = append(productList, curProduct)
 		out, _ := json.Marshal(curProduct)
 		fmt.Println("curProduct: " + string(out))
