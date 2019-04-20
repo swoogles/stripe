@@ -121,18 +121,25 @@ func ExecuteLiveStripePaymentWithAmount(stripePaymentToken string, amount int64)
 	return createTestPaymentFunction("LIVE_STRIPE_SECRET_KEY")(stripePaymentToken, amount)
 }
 
-func GetAllTestProducts() {
+func GetAllTestProducts() []Product {
 	getAllProducts("TEST_STRIPE_SECRET_KEY")
 }
 
-func getAllProducts(stripePaymentToken string) {
+type Product struct {
+	title string
+}
+
+func getAllProducts(stripePaymentToken string) []Product {
 	stripe.Key = os.Getenv(stripePaymentToken)
 
+	var products []Product
 	params := &stripe.ProductListParams{}
 	params.Filters.AddFilter("limit", "", "3")
 	i := product.List(params)
 	for i.Next() {
 		p := i.Product()
-		fmt.Println(p)
+		var curProduct Product
+		json.NewDecoder(p).Decode(&curProduct)
+		products := append(products, curProduct)
 	}
 }
