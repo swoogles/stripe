@@ -10,6 +10,7 @@ import (
 	"github.com/stripe/stripe-go/sub"
 	//"github.com/stripe/stripe-go/source"
 	"os"
+	"encoding/json"
 )
 
 func createTestPaymentFunction(testKey string) func(string, int64) string {
@@ -139,9 +140,10 @@ func getAllProducts(stripePaymentToken string) []Product {
 	for i.Next() {
 		p := i.Product()
 		curProduct := Product{Name: p.Name}
-		fmt.Println("curProduct: " + curProduct)
+		out, _ := json.Marshal(curProduct)
+		fmt.Println("curProduct: " + string(out))
 		products = append(products, curProduct)
 	}
-	fmt.Println("Number of products: " + len(products))
+	fmt.Println("Number of products: " + string(len(products)))
 	return products
 }
