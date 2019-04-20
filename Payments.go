@@ -122,11 +122,11 @@ func ExecuteLiveStripePaymentWithAmount(stripePaymentToken string, amount int64)
 }
 
 func GetAllTestProducts() []Product {
-	getAllProducts("TEST_STRIPE_SECRET_KEY")
+	return getAllProducts("TEST_STRIPE_SECRET_KEY")
 }
 
 type Product struct {
-	title string
+	name string
 }
 
 func getAllProducts(stripePaymentToken string) []Product {
@@ -138,8 +138,8 @@ func getAllProducts(stripePaymentToken string) []Product {
 	i := product.List(params)
 	for i.Next() {
 		p := i.Product()
-		var curProduct Product
-		json.NewDecoder(p).Decode(&curProduct)
-		products := append(products, curProduct)
+		curProduct := Product{name: p.Name}
+		products = append(products, curProduct)
 	}
+	return products
 }
