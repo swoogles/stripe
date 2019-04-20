@@ -133,10 +133,13 @@ type Product struct {
 func getAllProducts(stripePaymentToken string) []Product {
 	stripe.Key = os.Getenv(stripePaymentToken)
 
-	var productList []Product
 	params := &stripe.ProductListParams{}
 	params.Filters.AddFilter("limit", "", "3")
 	i := product.List(params)
+
+
+	//var  []Product
+	productList := make([]Product, i.Meta().TotalCount)
 
 	for i.Next() {
 		p := i.Product()
