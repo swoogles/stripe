@@ -133,6 +133,6 @@ func getAllProducts(stripePaymentToken string) {
 	i := product.List(params)
 	for i.Next() {
 		p := i.Product()
-		log.Println(p)
+		fmt.Println(p)
 	}
 }
