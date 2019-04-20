@@ -133,11 +133,33 @@ type Product struct {
 func getAllProducts(stripePaymentToken string) []Product {
 	stripe.Key = os.Getenv(stripePaymentToken)
 
-	var products []Product
+	var productList []Product
 	params := &stripe.ProductListParams{}
 	params.Filters.AddFilter("limit", "", "3")
 	i := product.List(params)
+
 	for i.Next() {
+		p := i.Product()
+		curProduct := Product{Name: p.Name}
+		out, _ := json.Marshal(curProduct)
+		fmt.Println("curProduct: " + string(out))
+		productList = append(productList, curProduct)
+	}
+	fmt.Println("Number of products: " + string(len(productList)))
+	return productList
+}
+
+/* Slice fuckery
+func getAllProducts(stripePaymentToken string) []Product {
+	stripe.Key = os.Getenv(stripePaymentToken)
+
+	params := &stripe.ProductListParams{}
+	params.Filters.AddFilter("limit", "", "3")
+	i := product.List(params)
+	products := i[:0]
+
+	for i, n := range i {
+		//for i.Next() {
 		p := i.Product()
 		curProduct := Product{Name: p.Name}
 		out, _ := json.Marshal(curProduct)
@@ -147,3 +169,4 @@ func getAllProducts(stripePaymentToken string) []Product {
 	fmt.Println("Number of products: " + string(len(products)))
 	return products
 }
+*/
