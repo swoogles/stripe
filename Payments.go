@@ -141,11 +141,11 @@ func getAllProducts(stripePaymentToken string) []Product {
 	for i.Next() {
 		p := i.Product()
 		curProduct := Product{Name: p.Name}
+		productList = append(productList, curProduct)
 		out, _ := json.Marshal(curProduct)
 		fmt.Println("curProduct: " + string(out))
-		productList = append(productList, curProduct)
 	}
-	fmt.Println("Number of products: " + string(len(productList)))
+	fmt.Println("products: " + string(len(productList)))
 	return productList
 }
 
