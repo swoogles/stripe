@@ -126,7 +126,7 @@ func GetAllTestProducts() []Product {
 }
 
 type Product struct {
-	name string
+	Name string
 }
 
 func getAllProducts(stripePaymentToken string) []Product {
@@ -138,7 +138,7 @@ func getAllProducts(stripePaymentToken string) []Product {
 	i := product.List(params)
 	for i.Next() {
 		p := i.Product()
-		curProduct := Product{name: p.Name}
+		curProduct := Product{Name: p.Name}
 		products = append(products, curProduct)
 	}
 	return products
