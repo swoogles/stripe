@@ -156,6 +156,7 @@ func getAllProducts(stripePaymentToken string) []Product {
 		curProduct := Product{Name: p.Name}
 		for skuResponse.Next() {
 			curSku := skuResponse.SKU()
+			fmt.Println(string(curSku.ID))
 			curProduct.Skus = append(curProduct.Skus, Sku{Price: curSku.Price})
 		}
 		productList = append(productList, curProduct)
