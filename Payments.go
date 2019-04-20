@@ -138,6 +138,7 @@ func getAllProducts(stripePaymentToken string) []Product {
 	i := product.List(params)
 
 
+	fmt.Println("Total Count: " + string(i.Meta().TotalCount))
 	//var  []Product
 	productList := make([]Product, i.Meta().TotalCount)
 
