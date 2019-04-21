@@ -129,10 +129,10 @@ func ExecuteLiveStripePaymentWithAmount(stripePaymentToken string, amount int64)
 //}
 
 type Sku struct {
-	ID string
-	Price int64
+	ID          string
+	Price       int64
 	Description string
-	Membership string
+	Membership  string
 }
 type Product struct {
 	Name string
@@ -148,10 +148,10 @@ func createSkuFrom(stripeSku *stripe.SKU) Sku {
 		membership = "Anyone"
 	}
 	return Sku{
-		Price: stripeSku.Price,
-		ID: stripeSku.ID,
+		Price:       stripeSku.Price,
+		ID:          stripeSku.ID,
 		Description: stripeSku.Description,
-		Membership: membership,
+		Membership:  membership,
 	}
 }
 
@@ -173,7 +173,7 @@ func GetAllProducts(stripePaymentToken string, productType stripe.ProductType) [
 	for i.Next() {
 		p := i.Product()
 		skuParams := &stripe.SKUListParams{
-			Product:&p.ID,
+			Product: &p.ID,
 			// TODO
 		}
 		skuResponse := sku.List(skuParams)
@@ -183,12 +183,11 @@ func GetAllProducts(stripePaymentToken string, productType stripe.ProductType) [
 			curProduct.Skus = append(curProduct.Skus, createSkuFrom(skuResponse.SKU()))
 		}
 		productList = append(productList, curProduct)
-		fmt.Println("curProduct: " + jsonSerialize(curProduct))
 	}
 	return productList
 }
 
-func jsonSerialize(class interface {}) string {
+func JsonSerialize(class interface{}) string {
 	out, _ := json.Marshal(class)
 	var prettyJSON bytes.Buffer
 	prettyPrintError := json.Indent(&prettyJSON, out, "", "\t")
@@ -197,4 +196,3 @@ func jsonSerialize(class interface {}) string {
 	}
 	return string(prettyJSON.Bytes())
 }
-
