@@ -1,6 +1,7 @@
 package stripe
 
 import (
+	"bytes"
 	"fmt"
 	"github.com/stripe/stripe-go"
 	"github.com/stripe/stripe-go/charge"
@@ -9,6 +10,8 @@ import (
 	"github.com/stripe/stripe-go/plan"
 	"github.com/stripe/stripe-go/customer"
 	"github.com/stripe/stripe-go/sub"
+	"log"
+
 	//"github.com/stripe/stripe-go/source"
 	"os"
 	"encoding/json"
@@ -128,63 +131,62 @@ func GetAllTestProducts() []Product {
 }
 
 type Sku struct {
+	ID string
 	Price int64
+	Description string
+	Membership string
 }
 type Product struct {
 	Name string
 	Skus []Sku
 }
 
+func createSkuFrom(stripeSku *stripe.SKU) Sku {
+
+	var membership string // TODO Can it be immutable?
+	if value, ok := stripeSku.Attributes["membership"]; ok {
+		membership = value
+	} else {
+		membership = "Anyone"
+	}
+	return Sku{
+		Price: stripeSku.Price,
+		ID: stripeSku.ID,
+		Description: stripeSku.Description,
+		Membership: membership,
+	}
+}
+
 func getAllProducts(stripePaymentToken string) []Product {
 	stripe.Key = os.Getenv(stripePaymentToken)
 
 	params := &stripe.ProductListParams{}
-	params.Filters.AddFilter("limit", "", "3")
 	i := product.List(params)
 
-
-	fmt.Println("Total Count: " + string(i.Meta().TotalCount))
-	//var  []Product
 	productList := make([]Product, i.Meta().TotalCount)
 
 	for i.Next() {
 		p := i.Product()
-		skuParams := &stripe.SKUListParams{}
-		skuParams.Filters.AddFilter("limit", "", "3")
+		skuParams := &stripe.SKUListParams{Product:&p.ID}
 		skuResponse := sku.List(skuParams)
 
 		curProduct := Product{Name: p.Name}
 		for skuResponse.Next() {
-			curSku := skuResponse.SKU()
-			fmt.Println(string(curSku.ID))
-			curProduct.Skus = append(curProduct.Skus, Sku{Price: curSku.Price})
+			curProduct.Skus = append(curProduct.Skus, createSkuFrom(skuResponse.SKU()))
 		}
 		productList = append(productList, curProduct)
-		out, _ := json.Marshal(curProduct)
-		fmt.Println("curProduct: " + string(out))
+		fmt.Println("curProduct: " + jsonSerialize(curProduct))
 	}
-	fmt.Println("products: " + string(len(productList)))
 	return productList
 }
 
-/* Slice fuckery
-func getAllProducts(stripePaymentToken string) []Product {
-	stripe.Key = os.Getenv(stripePaymentToken)
-
-	params := &stripe.ProductListParams{}
-	params.Filters.AddFilter("limit", "", "3")
-	i := product.List(params)
-	products := i[:0]
-
-	for i, n := range i {
-		//for i.Next() {
-		p := i.Product()
-		curProduct := Product{Name: p.Name}
-		out, _ := json.Marshal(curProduct)
-		fmt.Println("curProduct: " + string(out))
-		products = append(products, curProduct)
+func jsonSerialize(class interface {}) string {
+	out, _ := json.Marshal(class)
+	var prettyJSON bytes.Buffer
+	prettyPrintError := json.Indent(&prettyJSON, out, "", "\t")
+	if prettyPrintError != nil {
+		log.Println("JSON parse error: ", prettyPrintError)
 	}
-	fmt.Println("Number of products: " + string(len(products)))
-	return products
+	return string(prettyJSON.Bytes())
 }
-*/
+
