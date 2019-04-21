@@ -2,19 +2,17 @@ package stripe
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"github.com/stripe/stripe-go"
 	"github.com/stripe/stripe-go/charge"
+	"github.com/stripe/stripe-go/customer"
+	"github.com/stripe/stripe-go/plan"
 	"github.com/stripe/stripe-go/product"
 	"github.com/stripe/stripe-go/sku"
-	"github.com/stripe/stripe-go/plan"
-	"github.com/stripe/stripe-go/customer"
 	"github.com/stripe/stripe-go/sub"
 	"log"
-
-	//"github.com/stripe/stripe-go/source"
 	"os"
-	"encoding/json"
 )
 
 func createTestPaymentFunction(testKey string) func(string, int64) string {
@@ -126,9 +124,9 @@ func ExecuteLiveStripePaymentWithAmount(stripePaymentToken string, amount int64)
 	return createTestPaymentFunction("LIVE_STRIPE_SECRET_KEY")(stripePaymentToken, amount)
 }
 
-func GetAllTestProducts() []Product {
-	return getAllProducts("TEST_STRIPE_SECRET_KEY")
-}
+//func GetAllTestProducts() []Product {
+//	return GetAllProducts("TEST_STRIPE_SECRET_KEY")
+//}
 
 type Sku struct {
 	ID string
@@ -157,17 +155,27 @@ func createSkuFrom(stripeSku *stripe.SKU) Sku {
 	}
 }
 
-func getAllProducts(stripePaymentToken string) []Product {
-	stripe.Key = os.Getenv(stripePaymentToken)
+func GetAllProductsWithUnsafeType(stripePaymentToken string, productTypeString string) []Product {
+	return GetAllProducts(stripePaymentToken, stripe.ProductType(productTypeString))
+}
 
-	params := &stripe.ProductListParams{}
+func GetAllProducts(stripePaymentToken string, productType stripe.ProductType) []Product {
+	stripe.Key = os.Getenv(stripePaymentToken)
+	productTypeString := string(productType)
+
+	params := &stripe.ProductListParams{
+		Type: &productTypeString,
+	}
 	i := product.List(params)
 
 	productList := make([]Product, i.Meta().TotalCount)
 
 	for i.Next() {
 		p := i.Product()
-		skuParams := &stripe.SKUListParams{Product:&p.ID}
+		skuParams := &stripe.SKUListParams{
+			Product:&p.ID,
+			// TODO
+		}
 		skuResponse := sku.List(skuParams)
 
 		curProduct := Product{Name: p.Name}
