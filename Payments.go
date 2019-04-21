@@ -187,6 +187,21 @@ func GetAllProducts(stripePaymentToken string, productType stripe.ProductType) [
 	return productList
 }
 
+func ExecuteStripePaymentWithAmount(stripePaymentToken string, amount int64, stripeSecretKeyVariable string) string {
+	stripe.Key = os.Getenv(stripeSecretKeyVariable)
+
+	params := &stripe.ChargeParams{
+		Amount:      stripe.Int64(amount),
+		Currency:    stripe.String(string(stripe.CurrencyUSD)),
+		Description: stripe.String("Example charge"),
+	}
+	params.SetSource(stripePaymentToken)
+	ch, _ := charge.New(params)
+	fmt.Println(ch)
+
+	return "payment:" + string(amount)
+}
+
 func JsonSerialize(class interface{}) string {
 	out, _ := json.Marshal(class)
 	var prettyJSON bytes.Buffer
