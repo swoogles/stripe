@@ -79,7 +79,10 @@ func CreateCustomer(key string, sourceToken string) string {
 		Email: stripe.String("jenny.rosen@example.com"),
 	}
 	params.SetSource(sourceToken)
-	cus, _ := customer.New(params)
+	cus, errors := customer.New(params)
+	if errors != nil {
+		fmt.Println(errors)
+	}
 	fmt.Println("New Customer: ")
 	fmt.Println(cus)
 	return cus.ID
