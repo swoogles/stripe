@@ -7,6 +7,7 @@ import (
 	"github.com/stripe/stripe-go"
 	"github.com/stripe/stripe-go/charge"
 	"github.com/stripe/stripe-go/customer"
+	"github.com/stripe/stripe-go/order"
 	"github.com/stripe/stripe-go/plan"
 	"github.com/stripe/stripe-go/product"
 	"github.com/stripe/stripe-go/sku"
@@ -67,7 +68,11 @@ func createPlan(key string, productId string) string {
 //	source.New()
 //}
 
-func createCustomer(key string, sourceToken string) string {
+//func CreateSource(stripeSecretKey string) {
+//	&stripe.SourceParams{}
+//}
+
+func CreateCustomer(key string, sourceToken string) string {
 	stripe.Key = os.Getenv(key)
 
 	params := &stripe.CustomerParams{
@@ -105,7 +110,7 @@ func CreateTestSubscription(planId string, customerId string) string {
 }
 
 func CreateTestCustomer(sourceToken string) string {
-	return createCustomer("TEST_STRIPE_SECRET_KEY", sourceToken)
+	return CreateCustomer("TEST_STRIPE_SECRET_KEY", sourceToken)
 }
 
 func CreateTestPlan(productId string) string {
@@ -200,6 +205,25 @@ func ExecuteStripePaymentWithAmount(stripePaymentToken string, amount int64, str
 	fmt.Println(ch)
 
 	return "payment:" + string(amount)
+}
+
+func CreateOrder(sku string, stripeSecretKeyVariable string) {
+	stripe.Key = os.Getenv(stripeSecretKeyVariable)
+
+	params := &stripe.OrderParams{
+		Currency: stripe.String(string(stripe.CurrencyUSD)),
+		Email:    stripe.String("jenny.rosen@example.com"),
+		Items: []*stripe.OrderItemParams{
+			{
+				Type:     stripe.String(string(stripe.OrderItemTypeSKU)),
+				Parent:   &sku,
+				Quantity: stripe.Int64(1),
+			},
+		},
+	}
+	ord, _ := order.New(params)
+	fmt.Println(JsonSerialize(ord))
+
 }
 
 func JsonSerialize(class interface{}) string {
