@@ -210,7 +210,7 @@ func ExecuteStripePaymentWithAmount(stripePaymentToken string, amount int64, str
 	return "payment:" + string(amount)
 }
 
-func CreateOrder(sku string, stripeSecretKeyVariable string) {
+func CreateOrder(sku string, stripeSecretKeyVariable string, customerId string) string {
 	stripe.Key = os.Getenv(stripeSecretKeyVariable)
 
 	params := &stripe.OrderParams{
@@ -226,6 +226,15 @@ func CreateOrder(sku string, stripeSecretKeyVariable string) {
 	}
 	ord, _ := order.New(params)
 	fmt.Println(JsonSerialize(ord))
+	orderPayParams := stripe.OrderPayParams{
+		Customer: &customerId,
+	}
+	pay, e := order.Pay(ord.ID, &orderPayParams)
+	fmt.Println(pay)
+	if e != nil {
+		log.Println(e)
+	}
+	return pay.ID
 
 }
 

@@ -11,5 +11,5 @@ func TestGetAllTestProducts(*testing.T) {
 }
 
 func TestCreateOrder(t *testing.T) {
-	CreateOrder("sku_EuxgNOUYjIEyFZ", "TEST_STRIPE_SECRET_KEY")
+	//CreateOrder("sku_EuxgNOUYjIEyFZ", "TEST_STRIPE_SECRET_KEY")
 }
