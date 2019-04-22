@@ -72,7 +72,7 @@ func createPlan(key string, productId string) string {
 //	&stripe.SourceParams{}
 //}
 
-func CreateCustomer(key string, sourceToken string) string {
+func CreateCustomer(key string, sourceToken string, email string) string {
 	stripe.Key = os.Getenv(key)
 
 	params := &stripe.CustomerParams{
@@ -113,7 +113,7 @@ func CreateTestSubscription(planId string, customerId string) string {
 }
 
 func CreateTestCustomer(sourceToken string) string {
-	return CreateCustomer("TEST_STRIPE_SECRET_KEY", sourceToken)
+	return CreateCustomer("TEST_STRIPE_SECRET_KEY", sourceToken, "")
 }
 
 func CreateTestPlan(productId string) string {
