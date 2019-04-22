@@ -76,7 +76,7 @@ func CreateCustomer(key string, sourceToken string, email string) string {
 	stripe.Key = os.Getenv(key)
 
 	params := &stripe.CustomerParams{
-		Email: stripe.String("jenny.rosen@example.com"),
+		Email: stripe.String(email),
 	}
 	params.SetSource(sourceToken)
 	cus, errors := customer.New(params)
