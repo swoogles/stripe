@@ -88,28 +88,21 @@ func CreateCustomer(key string, sourceToken string, email string) string {
 	return cus.ID
 }
 
-func createSubscription(testkey string) func(string, string) string {
-	return func(planId string, customerId string) string {
-
-		items := []*stripe.SubscriptionItemsParams{
-			{
-				Plan: stripe.String(planId),
-			},
-		}
-		params := &stripe.SubscriptionParams{
-			Customer: stripe.String(customerId),
-			Items:    items,
-		}
-		newSubscription, _ := sub.New(params)
-		fmt.Println("New Subscription: ")
-		fmt.Println(newSubscription)
-		return newSubscription.ID
+func CreateSubscription(stripeSecretKey string, planId string, customerId string) string {
+	stripe.Key = os.Getenv(stripeSecretKey)
+	items := []*stripe.SubscriptionItemsParams{
+		{
+			Plan: stripe.String(planId),
+		},
 	}
-}
-
-func CreateTestSubscription(planId string, customerId string) string {
-	createSubscriptionFor := createSubscription("TEST_STRIPE_SECRET_KEY")
-	return createSubscriptionFor(planId, customerId)
+	params := &stripe.SubscriptionParams{
+		Customer: stripe.String(customerId),
+		Items:    items,
+	}
+	newSubscription, _ := sub.New(params)
+	fmt.Println("New Subscription: ")
+	fmt.Println(newSubscription)
+	return newSubscription.ID
 }
 
 func CreateTestCustomer(sourceToken string) string {
