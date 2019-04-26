@@ -12,9 +12,29 @@ import (
 	"github.com/stripe/stripe-go/product"
 	"github.com/stripe/stripe-go/sku"
 	"github.com/stripe/stripe-go/sub"
+	"golang.org/x/tools/go/ssa/interp/testdata/src/errors"
 	"log"
 	"os"
 )
+
+// TODO Can stripe be used to auth?
+// Or should I wield Netlify Identities to determine the BBF Member <-> Stripe Customer connection?
+type Customer struct {
+	ID        string
+	firstName string
+	lastName  string
+}
+
+type Sku struct {
+	ID          string
+	Price       int64
+	Description string
+	Membership  string
+}
+type Product struct {
+	Name string
+	Skus []Sku
+}
 
 func createTestPaymentFunction(testKey string) func(string, int64) string {
 	return func(stripePaymentToken string, amount int64) string {
@@ -72,6 +92,33 @@ func createPlan(key string, productId string) string {
 //	&stripe.SourceParams{}
 //}
 
+func FindCustomer(key string, email string) (*Customer, error) {
+	stripe.Key = key
+	list := customer.List(
+		&stripe.CustomerListParams{
+			Email: &email,
+		})
+	var customer *stripe.Customer
+	count := 0
+	for list.Next() {
+		count = count + 1
+		customer = list.Customer()
+	}
+	if count > 1 {
+		return nil, errors.New("Multiple accounts with this email! Bad data!")
+	} else if count == 0 {
+		return nil, errors.New("No account with this email address")
+		// Return empty Option
+	} else {
+		return &Customer{
+			customer.ID,
+			customer.Name,
+			"SPLIT THIS UP INTO FIRST/LAST",
+		}, nil
+	}
+
+}
+
 func CreateCustomer(key string, sourceToken string, email string) string {
 	stripe.Key = os.Getenv(key)
 
@@ -126,19 +173,8 @@ func ExecuteLiveStripePaymentWithAmount(stripePaymentToken string, amount int64)
 }
 
 //func GetAllTestProducts() []Product {
-//	return GetAllProducts("TEST_STRIPE_SECRET_KEY")
+//	returnGetAllProducts("TEST_STRIPE_SECRET_KEY")
 //}
-
-type Sku struct {
-	ID          string
-	Price       int64
-	Description string
-	Membership  string
-}
-type Product struct {
-	Name string
-	Skus []Sku
-}
 
 func createSkuFrom(stripeSku *stripe.SKU) Sku {
 
