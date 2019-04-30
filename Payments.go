@@ -93,7 +93,7 @@ func createPlan(key string, productId string) string {
 //}
 
 func FindCustomer(key string, email string) (*Customer, error) {
-	stripe.Key = key
+	stripe.Key = os.Getenv(key)
 	list := customer.List(
 		&stripe.CustomerListParams{
 			Email: &email,
