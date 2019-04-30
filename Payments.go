@@ -105,9 +105,9 @@ func FindCustomer(key string, email string) (*Customer, error) {
 		customer = list.Customer()
 	}
 	if count > 1 {
-		return nil, errors.New("Multiple accounts with this email! Bad data!")
+		return nil, errors.New("Multiple accounts with this email: " + email)
 	} else if count == 0 {
-		return nil, errors.New("No account with this email address")
+		return nil, errors.New("No account with this email: " + email)
 		// Return empty Option
 	} else {
 		return &Customer{
