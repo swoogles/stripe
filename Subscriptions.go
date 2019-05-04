@@ -1,10 +1,10 @@
 package stripe
 
 import (
+	"fmt"
 	"github.com/stripe/stripe-go"
 	"github.com/stripe/stripe-go/sub"
-	"golang.org/x/tools/go/ssa/interp/testdata/src/fmt"
-	"golang.org/x/tools/go/ssa/interp/testdata/src/os"
+	"os"
 )
 
 func CreateSubscription(stripeSecretKey string, planId string, customerId string) string {

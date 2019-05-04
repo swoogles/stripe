@@ -1,11 +1,11 @@
 package stripe
 
 import (
+	"fmt"
 	"github.com/stripe/stripe-go"
 	"github.com/stripe/stripe-go/product"
 	"github.com/stripe/stripe-go/sku"
-	"golang.org/x/tools/go/ssa/interp/testdata/src/fmt"
-	"golang.org/x/tools/go/ssa/interp/testdata/src/os"
+	"os"
 )
 
 type Product struct {
