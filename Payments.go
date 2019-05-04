@@ -6,34 +6,16 @@ import (
 	"fmt"
 	"github.com/stripe/stripe-go"
 	"github.com/stripe/stripe-go/charge"
-	"github.com/stripe/stripe-go/customer"
 	"github.com/stripe/stripe-go/order"
-	"github.com/stripe/stripe-go/plan"
-	"github.com/stripe/stripe-go/product"
-	"github.com/stripe/stripe-go/sku"
-	"github.com/stripe/stripe-go/sub"
-	"golang.org/x/tools/go/ssa/interp/testdata/src/errors"
 	"log"
 	"os"
 )
-
-// TODO Can stripe be used to auth?
-// Or should I wield Netlify Identities to determine the BBF Member <-> Stripe Customer connection?
-type Customer struct {
-	ID        string
-	firstName string
-	lastName  string
-}
 
 type Sku struct {
 	ID          string
 	Price       int64
 	Description string
 	Membership  string
-}
-type Product struct {
-	Name string
-	Skus []Sku
 }
 
 func createTestPaymentFunction(testKey string) func(string, int64) string {
@@ -54,35 +36,6 @@ func createTestPaymentFunction(testKey string) func(string, int64) string {
 
 }
 
-func CreateProduct(testKey string) {
-	stripe.Key = os.Getenv(testKey)
-
-	params := &stripe.ProductParams{
-		Name: stripe.String("Gym Membership"),
-		Type: stripe.String(string(stripe.ProductTypeService)),
-	}
-	prod, _ := product.New(params)
-	//prod.ID
-
-	fmt.Println("New Product Response")
-	fmt.Println(prod)
-}
-
-func createPlan(key string, productId string) string {
-	stripe.Key = os.Getenv(key)
-	params := &stripe.PlanParams{
-		ProductID: stripe.String(productId),
-		Nickname:  stripe.String("Gym Membership USD"),
-		Interval:  stripe.String(string(stripe.PlanIntervalMonth)),
-		Currency:  stripe.String("usd"),
-		Amount:    stripe.Int64(10000),
-	}
-	p, _ := plan.New(params)
-	fmt.Println("New Plan:")
-	fmt.Println(p)
-	return p.ID
-}
-
 //func createSource(testKey string) string {
 //	&stripe.SourceParams{}
 //	source.New()
@@ -92,78 +45,6 @@ func createPlan(key string, productId string) string {
 //	&stripe.SourceParams{}
 //}
 
-func FindCustomer(key string, email string) (*Customer, error) {
-	stripe.Key = os.Getenv(key)
-	list := customer.List(
-		&stripe.CustomerListParams{
-			Email: &email,
-		})
-	var customer *stripe.Customer
-	count := 0
-	for list.Next() {
-		count = count + 1
-		customer = list.Customer()
-	}
-	if count > 1 {
-		return nil, errors.New("Multiple accounts with this email: " + email)
-	} else if count == 0 {
-		return nil, errors.New("No account with this email: " + email)
-		// Return empty Option
-	} else {
-		return &Customer{
-			customer.ID,
-			customer.Name,
-			"SPLIT THIS UP INTO FIRST/LAST",
-		}, nil
-	}
-
-}
-
-func CreateCustomer(key string, sourceToken string, email string) string {
-	stripe.Key = os.Getenv(key)
-
-	params := &stripe.CustomerParams{
-		Email: stripe.String(email),
-	}
-	params.SetSource(sourceToken)
-	cus, errors := customer.New(params)
-	if errors != nil {
-		fmt.Println(errors)
-	}
-	fmt.Println("New Customer: ")
-	fmt.Println(cus)
-	return cus.ID
-}
-
-func CreateSubscription(stripeSecretKey string, planId string, customerId string) string {
-	stripe.Key = os.Getenv(stripeSecretKey)
-	items := []*stripe.SubscriptionItemsParams{
-		{
-			Plan: stripe.String(planId),
-		},
-	}
-	params := &stripe.SubscriptionParams{
-		Customer: stripe.String(customerId),
-		Items:    items,
-	}
-	newSubscription, _ := sub.New(params)
-	fmt.Println("New Subscription: ")
-	fmt.Println(newSubscription)
-	return newSubscription.ID
-}
-
-func CreateTestCustomer(sourceToken string) string {
-	return CreateCustomer("TEST_STRIPE_SECRET_KEY", sourceToken, "")
-}
-
-func CreateTestPlan(productId string) string {
-	return createPlan("TEST_STRIPE_SECRET_KEY", productId)
-}
-
-func CreateTestProduct() {
-	CreateProduct("TEST_STRIPE_SECRET_KEY")
-}
-
 func ExecuteTestStripePaymentWithAmount(stripePaymentToken string, amount int64) string {
 	return createTestPaymentFunction("TEST_STRIPE_SECRET_KEY")(stripePaymentToken, amount)
 }
@@ -171,10 +52,6 @@ func ExecuteTestStripePaymentWithAmount(stripePaymentToken string, amount int64)
 func ExecuteLiveStripePaymentWithAmount(stripePaymentToken string, amount int64) string {
 	return createTestPaymentFunction("LIVE_STRIPE_SECRET_KEY")(stripePaymentToken, amount)
 }
-
-//func GetAllTestProducts() []Product {
-//	returnGetAllProducts("TEST_STRIPE_SECRET_KEY")
-//}
 
 func createSkuFrom(stripeSku *stripe.SKU) Sku {
 
@@ -190,38 +67,6 @@ func createSkuFrom(stripeSku *stripe.SKU) Sku {
 		Description: stripeSku.Description,
 		Membership:  membership,
 	}
-}
-
-func GetAllProductsWithUnsafeType(stripePaymentToken string, productTypeString string) []Product {
-	return GetAllProducts(stripePaymentToken, stripe.ProductType(productTypeString))
-}
-
-func GetAllProducts(stripePaymentToken string, productType stripe.ProductType) []Product {
-	stripe.Key = os.Getenv(stripePaymentToken)
-	productTypeString := string(productType)
-
-	params := &stripe.ProductListParams{
-		Type: &productTypeString,
-	}
-	i := product.List(params)
-
-	productList := make([]Product, i.Meta().TotalCount)
-
-	for i.Next() {
-		p := i.Product()
-		skuParams := &stripe.SKUListParams{
-			Product: &p.ID,
-			// TODO
-		}
-		skuResponse := sku.List(skuParams)
-
-		curProduct := Product{Name: p.Name}
-		for skuResponse.Next() {
-			curProduct.Skus = append(curProduct.Skus, createSkuFrom(skuResponse.SKU()))
-		}
-		productList = append(productList, curProduct)
-	}
-	return productList
 }
 
 func ExecuteStripePaymentWithAmount(stripePaymentToken string, amount int64, stripeSecretKeyVariable string) string {
