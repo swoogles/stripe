@@ -54,6 +54,11 @@ func CreateSource(key string, token string) {
 }
 */
 
+func CreateCustomerAndSubscribeToPlan(key string, sourceToken string, email string, name string, planId string) string {
+	customerId := CreateCustomer(key, sourceToken, email, name)
+	return CreateSubscription(key, planId, customerId)
+}
+
 func CreateCustomer(key string, sourceToken string, email string, name string) string {
 	stripe.Key = os.Getenv(key)
 
