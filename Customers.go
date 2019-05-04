@@ -43,6 +43,17 @@ func FindCustomer(key string, email string) (*Customer, error) {
 
 }
 
+/*
+func CreateSource(key string, token string) {
+	sourceParams := &stripe.SourceParams{
+		Token: &token,
+	}
+	source.New(
+		sourceParams
+		)
+}
+*/
+
 func CreateCustomer(key string, sourceToken string, email string, name string) string {
 	stripe.Key = os.Getenv(key)
 

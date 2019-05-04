@@ -2,7 +2,9 @@ package stripe
 
 import (
 	"fmt"
+	"github.com/leekchan/accounting"
 	"github.com/stripe/stripe-go"
+	"github.com/stripe/stripe-go/plan"
 	"github.com/stripe/stripe-go/product"
 	"github.com/stripe/stripe-go/sku"
 	"os"
@@ -11,6 +13,13 @@ import (
 type Product struct {
 	Name string
 	Skus []Sku
+}
+
+type Plan struct {
+	Name     string
+	Id       string
+	Interval string
+	Price    string
 }
 
 func CreateTestProduct() {
@@ -43,8 +52,10 @@ func GetAllProducts(stripePaymentToken string, productType stripe.ProductType) [
 	stripe.Key = os.Getenv(stripePaymentToken)
 	productTypeString := string(productType)
 
+	shippable := false
 	params := &stripe.ProductListParams{
-		Type: &productTypeString,
+		Type:      &productTypeString,
+		Shippable: &shippable,
 	}
 	i := product.List(params)
 
@@ -62,6 +73,34 @@ func GetAllProducts(stripePaymentToken string, productType stripe.ProductType) [
 		for skuResponse.Next() {
 			curProduct.Skus = append(curProduct.Skus, createSkuFrom(skuResponse.SKU()))
 		}
+		productList = append(productList, curProduct)
+	}
+	return productList
+}
+
+func FormatPrice(amount float64) string {
+	ac := accounting.Accounting{Symbol: "$", Precision: 2}
+	return ac.FormatMoney(amount)
+}
+
+func GetAllPlans(stripePaymentToken string) []Plan {
+	stripe.Key = os.Getenv(stripePaymentToken)
+
+	params := &stripe.PlanListParams{}
+	i := plan.List(params)
+	plan.List(params)
+
+	productList := make([]Plan, i.Meta().TotalCount)
+
+	for i.Next() {
+		p := i.Plan()
+		var interval string
+		if p.IntervalCount > 1 {
+			interval = string(p.Interval) + "s"
+		} else {
+			interval = string(p.Interval)
+		}
+		curProduct := Plan{Name: p.Nickname, Id: p.ID, Interval: interval, Price: FormatPrice(float64(p.Amount) / 100.0)}
 		productList = append(productList, curProduct)
 	}
 	return productList

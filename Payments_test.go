@@ -6,7 +6,21 @@ import (
 )
 
 func TestGetAllTestProducts(*testing.T) {
-	allGoods := GetAllProductsWithUnsafeType("TEST_STRIPE_SECRET_KEY", "good")
+	allGoods := GetAllProductsWithUnsafeType("TEST_STRIPE_SECRET_KEY",
+		"good",
+	)
+	fmt.Println(string(JsonSerialize(allGoods)))
+}
+
+func TestGetAllTestServices(*testing.T) {
+	allServices := GetAllProductsWithUnsafeType("TEST_STRIPE_SECRET_KEY",
+		"service",
+	)
+	fmt.Println(string(JsonSerialize(allServices)))
+}
+
+func TestGetAllTestPlans(*testing.T) {
+	allGoods := GetAllPlans("TEST_STRIPE_SECRET_KEY")
 	fmt.Println(string(JsonSerialize(allGoods)))
 }
 
