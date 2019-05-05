@@ -18,22 +18,19 @@ type Sku struct {
 	Membership  string
 }
 
-func createTestPaymentFunction(testKey string) func(string, int64) string {
-	return func(stripePaymentToken string, amount int64) string {
-		stripe.Key = os.Getenv(testKey)
+func createPayment(testKey string, stripePaymentToken string, amount int64) string {
+	stripe.Key = os.Getenv(testKey)
 
-		params := &stripe.ChargeParams{
-			Amount:      stripe.Int64(amount),
-			Currency:    stripe.String(string(stripe.CurrencyUSD)),
-			Description: stripe.String("Example charge"),
-		}
-		params.SetSource(stripePaymentToken)
-		ch, _ := charge.New(params)
-		fmt.Println(ch)
-
-		return "faux payment response"
+	params := &stripe.ChargeParams{
+		Amount:      stripe.Int64(amount),
+		Currency:    stripe.String(string(stripe.CurrencyUSD)),
+		Description: stripe.String("Example charge"),
 	}
+	params.SetSource(stripePaymentToken)
+	ch, _ := charge.New(params)
+	fmt.Println(ch)
 
+	return "faux payment response"
 }
 
 //func createSource(testKey string) string {
@@ -46,11 +43,11 @@ func createTestPaymentFunction(testKey string) func(string, int64) string {
 //}
 
 func ExecuteTestStripePaymentWithAmount(stripePaymentToken string, amount int64) string {
-	return createTestPaymentFunction("TEST_STRIPE_SECRET_KEY")(stripePaymentToken, amount)
+	return createPayment("TEST_STRIPE_SECRET_KEY", stripePaymentToken, amount)
 }
 
 func ExecuteLiveStripePaymentWithAmount(stripePaymentToken string, amount int64) string {
-	return createTestPaymentFunction("LIVE_STRIPE_SECRET_KEY")(stripePaymentToken, amount)
+	return createPayment("LIVE_STRIPE_SECRET_KEY", stripePaymentToken, amount)
 }
 
 func createSkuFrom(stripeSku *stripe.SKU) Sku {
