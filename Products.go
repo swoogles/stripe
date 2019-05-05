@@ -8,18 +8,12 @@ import (
 	"github.com/stripe/stripe-go/product"
 	"github.com/stripe/stripe-go/sku"
 	"os"
+	"strconv"
 )
 
 type Product struct {
 	Name string
 	Skus []Sku
-}
-
-type Plan struct {
-	Name     string
-	Id       string
-	Interval string
-	Price    string
 }
 
 func CreateTestProduct() {
@@ -96,7 +90,7 @@ func GetAllPlans(stripePaymentToken string) []Plan {
 		p := i.Plan()
 		var interval string
 		if p.IntervalCount > 1 {
-			interval = string(p.Interval) + "s"
+			interval = strconv.FormatInt(p.IntervalCount, 10) + " " + string(p.Interval) + "s"
 		} else {
 			interval = string(p.Interval)
 		}

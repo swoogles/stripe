@@ -7,6 +7,13 @@ import (
 	"os"
 )
 
+type Plan struct {
+	Name     string
+	Id       string
+	Interval string
+	Price    string
+}
+
 func CreateTestPlan(productId string) string {
 	return createPlan("TEST_STRIPE_SECRET_KEY", productId)
 }
