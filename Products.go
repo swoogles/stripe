@@ -11,7 +11,7 @@ import (
 type Product struct {
 	Name        string
 	Id          string
-	Price       int64
+	Price       string
 	Description string
 	//Membership  string
 }
@@ -68,7 +68,7 @@ func GetAllProducts(stripeSecretKey string, productType stripe.ProductType) []Pr
 		if skuResponse.Next() {
 			fmt.Println("In condition")
 			curProduct.Id = skuResponse.SKU().ID
-			curProduct.Price = skuResponse.SKU().Price
+			curProduct.Price = FormatPrice(skuResponse.SKU().Price)
 			curProduct.Description = skuResponse.SKU().Description
 		}
 		productList = append(productList, curProduct)
