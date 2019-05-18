@@ -7,5 +7,5 @@ import (
 
 func TestGetAllProducts(t *testing.T) {
 
-	fmt.Println(JsonSerialize(GetAllProductsWithUnsafeType("STRIPE_SECRET_KEY", "good")))
+	fmt.Println(JsonSerialize(GetActiveProductsWithUnsafeType("STRIPE_SECRET_KEY", "good")))
 }

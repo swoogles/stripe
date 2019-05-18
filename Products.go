@@ -38,7 +38,7 @@ func CreateProduct(testKey string) {
 	fmt.Println(prod)
 }
 
-func GetAllProductsWithUnsafeType(stripeSecretKey string, productTypeString string) []Product {
+func GetActiveProductsWithUnsafeType(stripeSecretKey string, productTypeString string) []Product {
 	return GetActiveProducts(stripeSecretKey, stripe.ProductType(productTypeString))
 }
 
