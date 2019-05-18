@@ -86,7 +86,7 @@ func CreateOrder(sku string, stripeSecretKeyVariable string, customerId string) 
 
 	params := &stripe.OrderParams{
 		Currency: stripe.String(string(stripe.CurrencyUSD)),
-		Email:    stripe.String("jenny.rosen@example.com"),
+		Customer: &customerId,
 		Items: []*stripe.OrderItemParams{
 			{
 				Type:     stripe.String(string(stripe.OrderItemTypeSKU)),
@@ -96,6 +96,7 @@ func CreateOrder(sku string, stripeSecretKeyVariable string, customerId string) 
 		},
 	}
 	ord, _ := order.New(params)
+	fmt.Println("Serialized Order:")
 	fmt.Println(JsonSerialize(ord))
 	orderPayParams := stripe.OrderPayParams{
 		Customer: &customerId,
@@ -105,6 +106,8 @@ func CreateOrder(sku string, stripeSecretKeyVariable string, customerId string) 
 	if e != nil {
 		log.Println(e)
 	}
+	fmt.Println("Order.pay:")
+	fmt.Println(pay)
 	return pay.ID
 
 }
