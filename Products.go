@@ -39,18 +39,20 @@ func CreateProduct(testKey string) {
 }
 
 func GetAllProductsWithUnsafeType(stripeSecretKey string, productTypeString string) []Product {
-	return GetAllProducts(stripeSecretKey, stripe.ProductType(productTypeString))
+	return GetActiveProducts(stripeSecretKey, stripe.ProductType(productTypeString))
 }
 
-func GetAllProducts(stripeSecretKey string, productType stripe.ProductType) []Product {
+func GetActiveProducts(stripeSecretKey string, productType stripe.ProductType) []Product {
 	fmt.Println("retrieved key: " + os.Getenv(stripeSecretKey))
 	stripe.Key = os.Getenv(stripeSecretKey)
 	productTypeString := string(productType)
 
+	active := true
 	shippable := false
 	params := &stripe.ProductListParams{
 		Type:      &productTypeString,
 		Shippable: &shippable,
+		Active:    &active,
 	}
 	i := product.List(params)
 
