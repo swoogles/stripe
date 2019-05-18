@@ -9,8 +9,11 @@ import (
 )
 
 type Product struct {
-	Name string
-	Skus []Sku
+	Name        string
+	Id          string
+	Price       int64
+	Description string
+	//Membership  string
 }
 
 func CreateTestProduct() {
@@ -35,12 +38,13 @@ func CreateProduct(testKey string) {
 	fmt.Println(prod)
 }
 
-func GetAllProductsWithUnsafeType(stripePaymentToken string, productTypeString string) []Product {
-	return GetAllProducts(stripePaymentToken, stripe.ProductType(productTypeString))
+func GetAllProductsWithUnsafeType(stripeSecretKey string, productTypeString string) []Product {
+	return GetAllProducts(stripeSecretKey, stripe.ProductType(productTypeString))
 }
 
-func GetAllProducts(stripePaymentToken string, productType stripe.ProductType) []Product {
-	stripe.Key = os.Getenv(stripePaymentToken)
+func GetAllProducts(stripeSecretKey string, productType stripe.ProductType) []Product {
+	fmt.Println("retrieved key: " + os.Getenv(stripeSecretKey))
+	stripe.Key = os.Getenv(stripeSecretKey)
 	productTypeString := string(productType)
 
 	shippable := false
@@ -61,8 +65,11 @@ func GetAllProducts(stripePaymentToken string, productType stripe.ProductType) [
 		skuResponse := sku.List(skuParams)
 
 		curProduct := Product{Name: p.Name}
-		for skuResponse.Next() {
-			curProduct.Skus = append(curProduct.Skus, createSkuFrom(skuResponse.SKU()))
+		if skuResponse.Next() {
+			fmt.Println("In condition")
+			curProduct.Id = skuResponse.SKU().ID
+			curProduct.Price = skuResponse.SKU().Price
+			curProduct.Description = skuResponse.SKU().Description
 		}
 		productList = append(productList, curProduct)
 	}
