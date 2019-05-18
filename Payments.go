@@ -84,6 +84,8 @@ func ExecuteStripePaymentWithAmount(stripePaymentToken string, amount int64, str
 func CreateOrder(sku string, stripeSecretKeyVariable string, customerId string) string {
 	stripe.Key = os.Getenv(stripeSecretKeyVariable)
 
+	fmt.Println("CreateOrder.customerId: " + customerId)
+	fmt.Println("CreateOrder.sku: " + sku)
 	params := &stripe.OrderParams{
 		Currency: stripe.String(string(stripe.CurrencyUSD)),
 		Customer: &customerId,
@@ -96,15 +98,14 @@ func CreateOrder(sku string, stripeSecretKeyVariable string, customerId string) 
 		},
 	}
 	ord, _ := order.New(params)
-	fmt.Println("Serialized Order:")
-	fmt.Println(JsonSerialize(ord))
+	fmt.Println("CreateOrder.Serialized Order: " + JsonSerialize(ord))
 	orderPayParams := stripe.OrderPayParams{
 		Customer: &customerId,
 	}
 	pay, e := order.Pay(ord.ID, &orderPayParams)
 	fmt.Println(pay)
 	if e != nil {
-		log.Println(e)
+		log.Println("CreateOrder.orderPay.error: " + e.Error())
 	}
 	fmt.Println("Order.pay:")
 	fmt.Println(pay)
