@@ -69,7 +69,7 @@ func GetAllProducts(stripeSecretKey string, productType stripe.ProductType) []Pr
 			fmt.Println("In condition")
 			curProduct.Id = skuResponse.SKU().ID
 			curProduct.Price = FormatPrice(skuResponse.SKU().Price)
-			curProduct.Description = skuResponse.SKU().Description
+			curProduct.Description = p.Description
 		}
 		productList = append(productList, curProduct)
 	}
